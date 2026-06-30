@@ -106,14 +106,20 @@ docker compose up --build           # db + backend + frontend
 The API image excludes `torch`; embeddings are produced by the offline pipeline
 against the database (data persists in the `dramarec-pgdata` volume).
 
-### Hosting (e.g. Fly.io / Render)
-Deploy the two images and a managed Postgres with the `vector` extension, then
-run the pipeline once against it. Environment variables:
+### Hosting on Render
+A `render.yaml` Blueprint provisions Postgres + backend + frontend. Steps:
 
-| Service | Variable | Purpose |
-|---|---|---|
-| backend | `DATABASE_URL` | Postgres connection |
-| backend | `FRONTEND_ORIGIN` | allowed CORS origin (the frontend URL) |
-| backend | `TMDB_API_TOKEN` | pipeline only |
-| frontend (build) | `NEXT_PUBLIC_API_BASE_URL` | backend's public URL (browser) |
-| frontend (run) | `INTERNAL_API_URL` | backend's internal URL (SSR) |
+1. Push this repo to GitHub.
+2. Render → **New → Blueprint** → pick the repo (it reads `render.yaml`).
+3. After services build, set **`BACKEND_URL`** on the frontend service to the
+   backend's public URL (e.g. `https://dramarec-backend.onrender.com`).
+4. Load data once, locally against the hosted DB (uses the `[ml]` extra):
+   ```bash
+   DATABASE_URL="<render external db url>" python -m pipeline.ingest --pages 10
+   DATABASE_URL="<render external db url>" python -m pipeline.embed
+   ```
+
+The app needs just **one** env var per service: `DATABASE_URL` (backend, wired
+automatically) and `BACKEND_URL` (frontend). The browser calls the frontend
+same-origin; a runtime proxy route forwards `/api/*` to the backend — no CORS,
+no build-time URLs.

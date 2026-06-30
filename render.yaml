@@ -1,0 +1,34 @@
+# Render Blueprint — deploys db + backend + frontend.
+# After first deploy, set the two `sync: false` vars in the dashboard (URLs aren't
+# known until services exist), then run the data pipeline once (see README).
+
+databases:
+  - name: dramarec-db
+    plan: free
+    postgresMajorVersion: "16"
+
+services:
+  - type: web
+    name: dramarec-backend
+    runtime: docker
+    plan: free
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: dramarec-db
+          property: connectionString
+
+  - type: web
+    name: dramarec-frontend
+    runtime: docker
+    plan: free
+    rootDir: frontend
+    dockerfilePath: ./Dockerfile
+    envVars:
+      # Set to the backend's public URL (https://dramarec-backend.onrender.com)
+      # once it exists.
+      - key: BACKEND_URL
+        sync: false
