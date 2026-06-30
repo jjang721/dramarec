@@ -34,9 +34,8 @@ services:
     build: ./frontend
     container_name: dramarec-frontend
     environment:
-      # Where the frontend reaches the backend (SSR + the /api proxy rewrite).
+      # Single var: used by SSR and the runtime /api proxy route.
       BACKEND_URL: http://backend:8000
-      INTERNAL_API_URL: http://backend:8000
     depends_on:
       - backend
     ports:

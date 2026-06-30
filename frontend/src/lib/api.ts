@@ -1,12 +1,9 @@
 // Client for the dramarec backend API. Types mirror the FastAPI response models.
 
-// SSR (in the frontend container) reaches the backend via its internal address;
-// the browser uses the backend's public address (baked at build via NEXT_PUBLIC).
-// Both default to localhost:8000 for local dev / compose.
+// Browser: same-origin ("" → /api/*), forwarded by the runtime proxy route.
+// Server (SSR): call the backend directly via BACKEND_URL.
 const API_BASE =
-  typeof window === "undefined"
-    ? process.env.INTERNAL_API_URL ?? "http://localhost:8000"
-    : process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
+  typeof window === "undefined" ? process.env.BACKEND_URL ?? "http://localhost:8000" : "";
 
 export type Show = {
   id: number;
