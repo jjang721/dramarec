@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-fraunces);
+}
+
+/* Editorial (light) — the default */
+:root {
+  --bg: #f7f4ee;        /* warm off-white */
+  --surface: #fffdf9;
+  --ink: #1b1916;       /* warm near-black */
+  --muted: #6f6a61;
+  --line: #e6e0d4;      /* hairline */
+  --accent: #a8412b;    /* terracotta */
+}
+
+/* Cinema (dark) */
+.dark {
+  --bg: #0d0d0f;
+  --surface: #151518;
+  --ink: #f1ede5;
+  --muted: #8f897f;
+  --line: #262329;
+  --accent: #d8a657;    /* warm gold */
+}
+
+html {
+  background: var(--bg);
+  transition: background-color 0.5s ease;
+}
+
+body {
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

@@ -1,0 +1,34 @@
+[project]
+name = "dramarec"
+version = "0.1.0"
+description = "A content-based recommendation engine for Korean dramas"
+requires-python = ">=3.10"
+# Runtime deps for the API + ingestion. Deliberately excludes torch/transformers
+# (only the embedding step needs those — see the [ml] extra) so the API image
+# stays small.
+dependencies = [
+    "sqlalchemy>=2.0",
+    "psycopg[binary]>=3.1",
+    "pgvector>=0.2.5",
+    "httpx>=0.27",
+    "tenacity>=8.2",
+    "pydantic-settings>=2.0",
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.29",
+    "numpy<2",
+]
+
+[project.optional-dependencies]
+# Heavy ML deps, needed only to generate embeddings (pipeline.embed).
+ml = ["sentence-transformers>=3,<6", "transformers>=4.41,<5"]
+dev = ["ruff>=0.4", "pytest>=8.0"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*", "pipeline*", "api*"]
+
+[tool.ruff]
+line-length = 100

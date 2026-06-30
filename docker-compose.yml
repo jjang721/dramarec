@@ -1,0 +1,46 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: dramarec-db
+    environment:
+      POSTGRES_USER: dramarec
+      POSTGRES_PASSWORD: dramarec
+      POSTGRES_DB: dramarec
+    ports:
+      # Host 5433 -> container 5432, to avoid clashing with a local Postgres.app
+      - "5433:5432"
+    volumes:
+      - dramarec-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dramarec"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    container_name: dramarec-backend
+    environment:
+      DATABASE_URL: postgresql+psycopg://dramarec:dramarec@db:5432/dramarec
+      # Only needed to run the ingestion pipeline; the API doesn't use it.
+      TMDB_API_TOKEN: ${TMDB_API_TOKEN:-}
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build: ./frontend
+    container_name: dramarec-frontend
+    environment:
+      # Where the frontend reaches the backend (SSR + the /api proxy rewrite).
+      BACKEND_URL: http://backend:8000
+      INTERNAL_API_URL: http://backend:8000
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+
+volumes:
+  dramarec-pgdata:
